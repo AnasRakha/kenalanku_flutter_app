@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "69565847840",
+    "project_id": "kenalanku-app-48c7b",
+    "storage_bucket": "kenalanku-app-48c7b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:69565847840:android:fc3c2bc83dfe3bec1d5f45",
+        "android_client_info": {
+          "package_name": "com.example.kenalanku"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLnX8dEa_dJhEI16RDWP233v-WTIwFq1k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
