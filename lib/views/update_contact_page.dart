@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:kenalanku/controllers/crud_services.dart';
 
 class UpdateContact extends StatefulWidget {
+  final String docID, name, phone, email;
+
   const UpdateContact({
     super.key,
     required this.docID,
@@ -9,106 +11,119 @@ class UpdateContact extends StatefulWidget {
     required this.phone,
     required this.email,
   });
-  final String docID, name, phone, email;
 
   @override
   State<UpdateContact> createState() => _UpdateContactState();
 }
 
 class _UpdateContactState extends State<UpdateContact> {
-  TextEditingController _nameController = TextEditingController();
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _phoneController = TextEditingController();
-  final formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _nameController;
+  late final TextEditingController _emailController;
+  late final TextEditingController _phoneController;
 
   @override
   void initState() {
-    _emailController.text = widget.email;
-    _phoneController.text = widget.phone;
-    _nameController.text = widget.name;
+    _nameController = TextEditingController(text: widget.name);
+    _emailController = TextEditingController(text: widget.email);
+    _phoneController = TextEditingController(text: widget.phone);
     super.initState();
+  }
+
+  void _updateContact() {
+    if (_formKey.currentState!.validate()) {
+      CRUDServices().updateContact(
+        docId: widget.docID,
+        name: _nameController.text.trim(),
+        phone: _phoneController.text.trim(),
+        email: _emailController.text.trim(),
+      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Kontak berhasil diperbarui")));
+      Navigator.pop(context);
+    }
+  }
+
+  void _deleteContact() {
+    CRUDServices().deleteContact(widget.docID);
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text("Kontak berhasil dihapus")));
+    Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Update Contact")),
+      appBar: AppBar(title: const Text("Edit Kontak")),
       body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
         child: Form(
-          key: formKey,
-          child: Center(
-            child: Column(
-              children: [
-                SizedBox(height: 50),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * .9,
-                  child: TextFormField(
-                    validator:
-                        (value) => value!.isEmpty ? "Enter any name" : null,
-                    controller: _nameController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      label: Text("Name"),
-                    ),
+          key: _formKey,
+          child: Column(
+            children: [
+              _buildTextField(
+                _nameController,
+                "Nama",
+                validator: (v) {
+                  if (v == null || v.isEmpty) return "Nama tidak boleh kosong";
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              _buildTextField(
+                _phoneController,
+                "Nomor Telepon",
+                keyboard: TextInputType.phone,
+              ),
+              const SizedBox(height: 16),
+              _buildTextField(
+                _emailController,
+                "Email",
+                keyboard: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: _updateContact,
+                  child: const Text("Perbarui", style: TextStyle(fontSize: 16)),
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: OutlinedButton(
+                  onPressed: _deleteContact,
+                  child: const Text(
+                    "Hapus",
+                    style: TextStyle(fontSize: 16, color: Colors.red),
                   ),
                 ),
-                SizedBox(height: 20),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * .9,
-                  child: TextFormField(
-                    controller: _phoneController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      label: Text("Phone"),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * .9,
-                  child: TextFormField(
-                    controller: _emailController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      label: Text("Email"),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 40),
-                SizedBox(
-                  height: 65,
-                  width: MediaQuery.of(context).size.width * .9,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (formKey.currentState!.validate()) {
-                        CRUDServices().updateContacts(
-                          _nameController.text,
-                          _phoneController.text,
-                          _emailController.text,
-                          widget.docID,
-                        );
-                        Navigator.pop(context);
-                      }
-                    },
-                    child: Text("Update", style: TextStyle(fontSize: 16)),
-                  ),
-                ),
-                SizedBox(height: 15),
-                SizedBox(
-                  height: 65,
-                  width: MediaQuery.of(context).size.width * .9,
-                  child: OutlinedButton(
-                    onPressed: () {
-                      CRUDServices().deleteContact(widget.docID);
-                      Navigator.pop(context);
-                    },
-                    child: Text("Delete", style: TextStyle(fontSize: 16)),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(
+    TextEditingController controller,
+    String label, {
+    TextInputType keyboard = TextInputType.text,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboard,
+      validator: validator,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(),
       ),
     );
   }

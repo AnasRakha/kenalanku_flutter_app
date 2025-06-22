@@ -9,78 +9,68 @@ class AddContact extends StatefulWidget {
 }
 
 class _AddContactState extends State<AddContact> {
-  TextEditingController _nameController = TextEditingController();
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _phoneController = TextEditingController();
-  final formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
+
+  void _saveContact() {
+    if (_formKey.currentState!.validate()) {
+      CRUDServices().addNewContact(
+        _nameController.text.trim(),
+        _phoneController.text.trim(),
+        _emailController.text.trim(),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Kontak berhasil ditambahkan")),
+      );
+      Navigator.pop(context);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Add Contact")),
+      appBar: AppBar(title: const Text("Tambah Kontak")),
       body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
         child: Form(
-          key: formKey,
-          child: Center(
-            child: Column(
-              children: [
-                SizedBox(height: 50),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * .9,
-                  child: TextFormField(
-                    validator:
-                        (value) => value!.isEmpty ? "Enter any name" : null,
-                    controller: _nameController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      label: Text("Name"),
-                    ),
-                  ),
+          key: _formKey,
+          child: Column(
+            children: [
+              _buildTextField(_nameController, "Nama", validator: (v) {
+                if (v == null || v.isEmpty) return "Nama tidak boleh kosong";
+                return null;
+              }),
+              const SizedBox(height: 16),
+              _buildTextField(_phoneController, "Nomor Telepon", keyboard: TextInputType.phone),
+              const SizedBox(height: 16),
+              _buildTextField(_emailController, "Email", keyboard: TextInputType.emailAddress),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: _saveContact,
+                  child: const Text("Simpan", style: TextStyle(fontSize: 16)),
                 ),
-                SizedBox(height: 20),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * .9,
-                  child: TextFormField(
-                    controller: _phoneController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      label: Text("Phone"),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * .9,
-                  child: TextFormField(
-                    controller: _emailController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      label: Text("Email"),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 40),
-                SizedBox(
-                  height: 65,
-                  width: MediaQuery.of(context).size.width * .9,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (formKey.currentState!.validate()) {
-                        CRUDServices().addNewContacts(
-                          _nameController.text,
-                          _phoneController.text,
-                          _emailController.text,
-                        );
-                        Navigator.pop(context);
-                      }
-                    },
-                    child: Text("Create", style: TextStyle(fontSize: 16)),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label,
+      {TextInputType keyboard = TextInputType.text, String? Function(String?)? validator}) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboard,
+      validator: validator,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(),
       ),
     );
   }

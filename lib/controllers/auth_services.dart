@@ -1,63 +1,54 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AuthServices {
-  // create new account using email password method
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  // Sign up with email & password
   Future<String> createAccountWithEmail(String email, String password) async {
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      // Membuat akun baru
+      await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
+
+      // Simpan data user ke Firestore
+      await _firestore.collection('users').doc(email).set({
+        'email': email,
+        'created_at': Timestamp.now(),
+      });
+
       return "Account Created";
     } on FirebaseAuthException catch (e) {
-      return e.message.toString();
+      return e.message ?? "An error occurred";
     }
   }
 
-  // login with email password method
+  // Login dengan email & password
   Future<String> loginWithEmail(String email, String password) async {
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
       return "Login Successful";
     } on FirebaseAuthException catch (e) {
-      return e.message.toString();
+      return e.message ?? "An error occurred";
     }
   }
 
-  //logout the user
-  Future logout() async {
-    await FirebaseAuth.instance.signOut();
+  // Logout user
+  Future<void> logout() async {
+    await _auth.signOut();
   }
 
-  // check whether the user is sign in or not
+  // Cek apakah user sedang login
   Future<bool> isLoggedIn() async {
-    var user = FirebaseAuth.instance.currentUser;
+    final user = _auth.currentUser;
     return user != null;
   }
 
-  // for login with google
-  Future<String> continueWithGoogle() async {
-    try {
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      // send auth request
-      final GoogleSignInAuthentication gAuth = await googleUser!.authentication;
-
-      // obtain a new creditional
-      final creds = GoogleAuthProvider.credential(
-        accessToken: gAuth.accessToken,
-        idToken: gAuth.idToken,
-      );
-
-      // sign in with the credential
-      await FirebaseAuth.instance.signInWithCredential(creds);
-
-      return "Google Login Successful";
-    } on FirebaseAuthException catch (e) {
-      return e.message.toString();
-    }
+  // Ambil current user
+  User? getCurrentUser() {
+    return _auth.currentUser;
   }
 }

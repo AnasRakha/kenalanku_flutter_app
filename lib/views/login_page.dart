@@ -99,43 +99,43 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               SizedBox(height: 10),
-              SizedBox(
-                height: 65,
-                width: MediaQuery.of(context).size.width * .9,
-                child: OutlinedButton(
-                  onPressed: () {
-                    AuthServices().continueWithGoogle().then((value) {
-                      if (value == "Google Login Successful") {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Google Login Successful")),
-                        );
-                        Navigator.pushReplacementNamed(context, "/home");
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              value,
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            backgroundColor: Colors.red.shade400,
-                          ),
-                        );
-                      }
-                    });
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset("images/google.png", height: 30, width: 30),
-                      SizedBox(width: 10),
-                      Text(
-                        "Continue with Google",
-                        style: TextStyle(fontSize: 16),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              // SizedBox(
+              //   height: 65,
+              //   width: MediaQuery.of(context).size.width * .9,
+              //   child: OutlinedButton(
+              //     onPressed: () {
+              //       AuthServices().continueWithGoogle().then((value) {
+              //         if (value == "Google Login Successful") {
+              //           ScaffoldMessenger.of(context).showSnackBar(
+              //             SnackBar(content: Text("Google Login Successful")),
+              //           );
+              //           Navigator.pushReplacementNamed(context, "/home");
+              //         } else {
+              //           ScaffoldMessenger.of(context).showSnackBar(
+              //             SnackBar(
+              //               content: Text(
+              //                 value,
+              //                 style: TextStyle(color: Colors.white),
+              //               ),
+              //               backgroundColor: Colors.red.shade400,
+              //             ),
+              //           );
+              //         }
+              //       });
+              //     },
+              //     child: Row(
+              //       mainAxisAlignment: MainAxisAlignment.center,
+              //       children: [
+              //         Image.asset("images/google.png", height: 30, width: 30),
+              //         SizedBox(width: 10),
+              //         Text(
+              //           "Continue with Google",
+              //           style: TextStyle(fontSize: 16),
+              //         ),
+              //       ],
+              //     ),
+              //   ),
+              // ),
               SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

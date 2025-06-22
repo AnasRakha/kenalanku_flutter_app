@@ -1,12 +1,17 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'firebase_options.dart';
+import 'package:kenalanku/controllers/auth_services.dart';
+
+// View imports
 import 'package:kenalanku/views/add_contact_page.dart';
 import 'package:kenalanku/views/home.dart';
 import 'package:kenalanku/views/login_page.dart';
 import 'package:kenalanku/views/sign_up_page.dart';
-import 'controllers/auth_services.dart';
-import 'firebase_options.dart';
+import 'package:kenalanku/views/phone_page.dart';
+import 'package:kenalanku/views/chat_list_page.dart';
+import 'package:kenalanku/views/menu_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,7 +22,6 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -33,6 +37,9 @@ class MyApp extends StatelessWidget {
         "/signup": (context) => SignUpPage(),
         "/login": (context) => LoginPage(),
         "/add": (context) => AddContact(),
+        "/phone": (context) => PhonePage(),
+        "/chat": (context) => ChatListPage(),
+        "/menu": (context) => MenuPage(),
       },
     );
   }
@@ -48,6 +55,7 @@ class CheckUser extends StatefulWidget {
 class _CheckUserState extends State<CheckUser> {
   @override
   void initState() {
+    super.initState();
     AuthServices().isLoggedIn().then((value) {
       if (value) {
         Navigator.pushReplacementNamed(context, "/home");
@@ -55,11 +63,10 @@ class _CheckUserState extends State<CheckUser> {
         Navigator.pushReplacementNamed(context, "/login");
       }
     });
-    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Center(child: CircularProgressIndicator());
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }

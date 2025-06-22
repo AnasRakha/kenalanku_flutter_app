@@ -2,69 +2,85 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class CRUDServices {
-  User? user = FirebaseAuth.instance.currentUser;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // add new contact to firestore
-  Future addNewContacts(String name, String phone, String email) async {
-    Map<String, dynamic> data = {"name": name, "email": email, "phone": phone};
+  // Ambil UID user saat ini
+  String get currentUserId => _auth.currentUser!.uid;
+
+  // Tambah kontak baru
+  Future<void> addNewContact(String name, String phone, String email) async {
     try {
-      await FirebaseFirestore.instance
+      final data = {
+        "name": name,
+        "phone": phone,
+        "email": email,
+        "createdAt": FieldValue.serverTimestamp(),
+      };
+
+      await _firestore
           .collection("users")
-          .doc(user!.uid)
+          .doc(currentUserId)
           .collection("contacts")
           .add(data);
-      print("Document Added");
+
+      print("Contact added.");
     } catch (e) {
-      print(e.toString());
+      print("Error adding contact: $e");
     }
   }
 
-  // read documents inside firestore
-  Stream<QuerySnapshot> getContacts() async* {
-    var contacts =
-        FirebaseFirestore.instance
-            .collection("users")
-            .doc(user!.uid)
-            .collection("contacts")
-            .orderBy("name")
-            .snapshots();
-
-    yield* contacts;
+  // Ambil kontak user (real-time)
+  Stream<QuerySnapshot> getContacts() {
+    return _firestore
+        .collection("users")
+        .doc(currentUserId)
+        .collection("contacts")
+        .orderBy("name")
+        .snapshots();
   }
 
-  // update contacts
-  Future updateContacts(
-    String name,
-    String phone,
-    String email,
-    String docID,
-  ) async {
-    Map<String, dynamic> data = {"name": name, "email": email, "phone": phone};
+  // Perbarui data kontak
+  Future<void> updateContact({
+    required String docId,
+    required String name,
+    required String phone,
+    required String email,
+  }) async {
     try {
-      await FirebaseFirestore.instance
+      final data = {
+        "name": name,
+        "phone": phone,
+        "email": email,
+        "updatedAt": FieldValue.serverTimestamp(),
+      };
+
+      await _firestore
           .collection("users")
-          .doc(user!.uid)
+          .doc(currentUserId)
           .collection("contacts")
-          .doc(docID)
+          .doc(docId)
           .update(data);
-      print("Document Updated");
+
+      print("Contact updated.");
     } catch (e) {
-      print(e.toString());
+      print("Error updating contact: $e");
     }
   }
 
-  // delete contact from firestore
-  Future deleteContact(String docID) async {
+  // Hapus kontak
+  Future<void> deleteContact(String docId) async {
     try {
-      await FirebaseFirestore.instance
+      await _firestore
           .collection("users")
-          .doc(user!.uid)
+          .doc(currentUserId)
           .collection("contacts")
-          .doc(docID)
+          .doc(docId)
           .delete();
-      print("Contact Deleted");
+
+      print("Contact deleted.");
     } catch (e) {
-      print(e.toString());
+      print("Error deleting contact: $e");
     }
   }
 }
